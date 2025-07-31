@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\BusinessAuthController;
+use App\Http\Controllers\BusinessController as CompanyController;
 
 // Admin Authentication Routes
 Route::prefix('admin')->group(function () {
@@ -63,7 +64,21 @@ Route::prefix('business')->group(function () {
 
     // Protected Business Routes
     Route::middleware(['auth', 'business'])->group(function () {
-        Route::get('/dashboard', [BusinessAuthController::class, 'dashboard'])->name('business.dashboard');
+        Route::get('/dashboard', [CompanyController::class, 'dashboard'])->name('business.dashboard');
+
+        // User Management
+        Route::get('/users', [CompanyController::class, 'users'])->name('business.users.index');
+        Route::get('/users/create', [CompanyController::class, 'createUser'])->name('business.users.create');
+        Route::post('/users', [CompanyController::class, 'storeUser'])->name('business.users.store');
+        Route::get('/users/{id}', [CompanyController::class, 'showUser'])->name('business.users.show');
+        Route::patch('/users/{id}/toggle-status', [CompanyController::class, 'toggleUserStatus'])->name('business.users.toggle-status');
+        Route::post('/users/{id}/generate-secure-link', [CompanyController::class, 'generateSecureLink'])->name('business.users.generate-secure-link');
+        Route::post('/users/{id}/extend-secure-link', [CompanyController::class, 'extendSecureLink'])->name('business.users.extend-secure-link');
+
+        // Logo Management
+        Route::get('/logo', [CompanyController::class, 'logo'])->name('business.logo.index');
+        Route::post('/logo', [CompanyController::class, 'updateLogo'])->name('business.logo.update');
+        Route::delete('/logo', [CompanyController::class, 'deleteLogo'])->name('business.logo.delete');
     });
 });
 

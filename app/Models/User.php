@@ -262,4 +262,9 @@ class User extends Authenticatable
 
         return max(0, now()->diffInHours($this->secure_link_expires_at, false));
     }
+
+    public function logo_url()
+    {
+        return asset('storage/' . $this->logo_path);
+    }
 }
