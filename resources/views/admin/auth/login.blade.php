@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Clean Admin</title>
+    <title>Admin Login - 360 Virtual Store Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="{{ asset('assets/css/styles.css') }}" rel="stylesheet">
@@ -15,8 +15,8 @@
             <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary bg-gradient">
                 <div class="text-center text-white">
                     <i class="bi bi-shield-check display-1 mb-4"></i>
-                    <h2 class="fw-bold mb-3">Clean Admin</h2>
-                    <p class="lead">Modern admin dashboard for your business</p>
+                    <h2 class="fw-bold mb-3">360 Virtual Store</h2>
+                    <p class="lead">360 Virtual Store admin dashboard for your business</p>
                 </div>
             </div>
 
