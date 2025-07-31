@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\BusinessAuthController;
 use App\Http\Controllers\Api\V1\BusinessController;
+use App\Http\Controllers\Admin\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,52 +21,33 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-/*
-|--------------------------------------------------------------------------
-| API V1 Routes
-|--------------------------------------------------------------------------
-*/
-
+// API v1 routes
 Route::prefix('v1')->group(function () {
+    // Public business routes
+    Route::post('business/login', [BusinessAuthController::class, 'login']);
+    Route::post('business/register', [BusinessAuthController::class, 'register']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Business Authentication Routes (Public)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('business')->group(function () {
-        // Public routes (no authentication required)
-        Route::post('/login', [BusinessAuthController::class, 'login']);
-        Route::post('/check-auth', [BusinessAuthController::class, 'checkAuth']);
+    // Protected business routes
+    Route::middleware(['auth:sanctum', 'api.business'])->prefix('business')->group(function () {
+        Route::post('logout', [BusinessAuthController::class, 'logout']);
+        Route::get('profile', [BusinessAuthController::class, 'profile']);
+        Route::put('profile', [BusinessAuthController::class, 'updateProfile']);
+        Route::put('change-password', [BusinessAuthController::class, 'changePassword']);
+        Route::post('refresh', [BusinessAuthController::class, 'refresh']);
+        Route::get('check-auth', [BusinessAuthController::class, 'checkAuth']);
+
+        Route::get('dashboard', [BusinessController::class, 'dashboard']);
+        Route::get('users', [BusinessController::class, 'getUsers']);
+        Route::get('users/{user}', [BusinessController::class, 'getUser']);
+        Route::put('logo', [BusinessController::class, 'updateLogo']);
+        Route::get('statistics', [BusinessController::class, 'getStatistics']);
+        Route::get('companies', [BusinessController::class, 'getCompanies']);
+        Route::get('expiring-links', [BusinessController::class, 'getExpiringLinks']);
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Business Protected Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('business')->middleware(['auth:sanctum', 'api.business'])->group(function () {
-
-        // Authentication & Profile
-        Route::post('/logout', [BusinessAuthController::class, 'logout']);
-        Route::get('/profile', [BusinessAuthController::class, 'profile']);
-        Route::put('/profile', [BusinessAuthController::class, 'updateProfile']);
-        Route::post('/change-password', [BusinessAuthController::class, 'changePassword']);
-        Route::post('/refresh-token', [BusinessAuthController::class, 'refresh']);
-
-        // Dashboard & Statistics
-        Route::get('/dashboard', [BusinessController::class, 'dashboard']);
-        Route::get('/statistics', [BusinessController::class, 'getStatistics']);
-        Route::get('/companies', [BusinessController::class, 'getCompanies']);
-        Route::get('/expiring-links', [BusinessController::class, 'getExpiringLinks']);
-
-        // User Management
-        Route::get('/users', [BusinessController::class, 'getUsers']);
-        Route::get('/users/{userId}', [BusinessController::class, 'getUser']);
-
-        // Business Settings
-        Route::post('/update-logo', [BusinessController::class, 'updateLogo']);
-    });
+    // Public product routes for Unity WebGL
+    Route::get('products', [ProductController::class, 'apiIndex']);
+    Route::get('products/{product}', [ProductController::class, 'apiShow']);
 });
 
 /*

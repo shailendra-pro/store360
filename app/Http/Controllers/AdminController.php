@@ -72,7 +72,7 @@ class AdminController extends Controller
                                          ->where('secure_link_expires_at', '<', now())
                                          ->count(),
             'total_categories' => \App\Models\Category::count(),
-            'active_categories' => \App\Models\Category::count(),
+            'active_categories' => \App\Models\Category::where('is_active', true)->count(),
             'total_subcategories' => \App\Models\Subcategory::count(),
             'active_subcategories' => \App\Models\Subcategory::where('is_active', true)->count(),
         ];

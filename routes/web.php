@@ -5,6 +5,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\BusinessController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\BusinessAuthController;
 
 // Admin Authentication Routes
@@ -18,6 +20,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
         Route::post('/password/update', [AdminController::class, 'updatePassword'])->name('admin.password.update');
+
+        // Category Management
+        Route::resource('categories', CategoryController::class, ['as' => 'admin']);
+        Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('admin.categories.toggle-status');
 
         // User Management
         Route::resource('users', UserController::class, ['as' => 'admin']);
@@ -36,6 +42,12 @@ Route::prefix('admin')->group(function () {
         Route::patch('businesses/{business}/toggle-status', [BusinessController::class, 'toggleStatus'])->name('admin.businesses.toggle-status');
         Route::post('businesses/{business}/update-credentials', [BusinessController::class, 'updateCredentials'])->name('admin.businesses.update-credentials');
         Route::post('businesses/{business}/update-logo', [BusinessController::class, 'updateLogo'])->name('admin.businesses.update-logo');
+
+        // Product Management
+        Route::resource('products', ProductController::class, ['as' => 'admin']);
+        Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('admin.products.toggle-status');
+        Route::patch('products/images/{image}/set-primary', [ProductController::class, 'setPrimaryImage'])->name('admin.products.set-primary-image');
+        Route::delete('products/images/{image}', [ProductController::class, 'deleteImage'])->name('admin.products.delete-image');
 
         Route::get('/', function () {
             return redirect('/admin/dashboard');

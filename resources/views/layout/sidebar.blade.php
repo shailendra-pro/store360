@@ -13,9 +13,17 @@
                 <ul class="nav flex-column">
                     <!-- Dashboard -->
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('admin.dashboard') }}">
+                        <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                             <i class="bi bi-speedometer2 me-2"></i>
                             Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Categories -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
+                            <i class="bi bi-tags me-2"></i>
+                            Categories
                         </a>
                     </li>
 
@@ -33,6 +41,7 @@
                                         <i class="bi bi-circle me-2"></i>All Categories
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
                                     <a class="nav-link" href="#add-category">
                                         <i class="bi bi-plus-circle me-2"></i>Add Category
@@ -49,20 +58,20 @@
 
                     <!-- Business Management -->
                     <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#businessMenu">
+                        <a class="nav-link {{ request()->routeIs('admin.businesses.*') ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse" data-bs-target="#businessMenu">
                             <i class="bi bi-building me-2"></i>
                             Business Management
                             <i class="bi bi-chevron-down ms-auto"></i>
                         </a>
-                        <div class="collapse" id="businessMenu">
+                        <div class="collapse {{ request()->routeIs('admin.businesses.*') ? 'show' : '' }}" id="businessMenu">
                             <ul class="nav flex-column ms-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.businesses.index') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.businesses.index') ? 'active' : '' }}" href="{{ route('admin.businesses.index') }}">
                                         <i class="bi bi-circle me-2"></i>All Businesses
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.businesses.create') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.businesses.create') ? 'active' : '' }}" href="{{ route('admin.businesses.create') }}">
                                         <i class="bi bi-plus-circle me-2"></i>Add Business
                                     </a>
                                 </li>
@@ -82,20 +91,20 @@
 
                     <!-- User Management -->
                     <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#userMenu">
+                        <a class="nav-link {{ request()->routeIs('admin.users.*') ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse" data-bs-target="#userMenu">
                             <i class="bi bi-people me-2"></i>
                             User Management
                             <i class="bi bi-chevron-down ms-auto"></i>
                         </a>
-                        <div class="collapse" id="userMenu">
+                        <div class="collapse {{ request()->routeIs('admin.users.*') ? 'show' : '' }}" id="userMenu">
                             <ul class="nav flex-column ms-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.users.index') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                                         <i class="bi bi-circle me-2"></i>All Users
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.users.create') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.users.create') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">
                                         <i class="bi bi-plus-circle me-2"></i>Add User
                                     </a>
                                 </li>
@@ -115,20 +124,20 @@
 
                     <!-- Subcategories -->
                     <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#subcategoriesMenu">
+                        <a class="nav-link {{ request()->routeIs('admin.subcategories.*') ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse" data-bs-target="#subcategoriesMenu">
                             <i class="bi bi-diagram-3 me-2"></i>
                             Subcategories
                             <i class="bi bi-chevron-down ms-auto"></i>
                         </a>
-                        <div class="collapse" id="subcategoriesMenu">
+                        <div class="collapse {{ request()->routeIs('admin.subcategories.*') ? 'show' : '' }}" id="subcategoriesMenu">
                             <ul class="nav flex-column ms-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.subcategories.index') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.subcategories.index') ? 'active' : '' }}" href="{{ route('admin.subcategories.index') }}">
                                         <i class="bi bi-circle me-2"></i>All Subcategories
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.subcategories.create') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.subcategories.create') ? 'active' : '' }}" href="{{ route('admin.subcategories.create') }}">
                                         <i class="bi bi-plus-circle me-2"></i>Add Subcategory
                                     </a>
                                 </li>
@@ -142,25 +151,25 @@
                     </li>
 
                     <!-- Products -->
-                    {{-- <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productsMenu">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.products.*') ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse" data-bs-target="#productsMenu">
                             <i class="bi bi-box me-2"></i>
                             Products
                             <i class="bi bi-chevron-down ms-auto"></i>
                         </a>
-                        <div class="collapse" id="productsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.products.*') ? 'show' : '' }}" id="productsMenu">
                             <ul class="nav flex-column ms-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#all-products">
+                                    <a class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">
                                         <i class="bi bi-circle me-2"></i>All Products
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#add-product">
+                                    <a class="nav-link {{ request()->routeIs('admin.products.create') ? 'active' : '' }}" href="{{ route('admin.products.create') }}">
                                         <i class="bi bi-plus-circle me-2"></i>Add Product
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="#product-inventory">
                                         <i class="bi bi-boxes me-2"></i>Inventory
                                     </a>
@@ -169,13 +178,13 @@
                                     <a class="nav-link" href="#product-reviews">
                                         <i class="bi bi-star me-2"></i>Reviews
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </li>
 
                     <!-- Orders -->
-                    <li class="nav-item">
+                 {{--  <li class="nav-item">
                         <a class="nav-link" href="#orders">
                             <i class="bi bi-cart me-2"></i>
                             Orders
@@ -201,7 +210,7 @@
 
                     <!-- Settings -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('admin.settings') }}">
+                        <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
                             <i class="bi bi-gear me-2"></i>
                             Settings
                         </a>
