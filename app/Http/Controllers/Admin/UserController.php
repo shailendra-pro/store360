@@ -32,7 +32,7 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+        $users = $query->where("role", "user")->orderBy('created_at', 'desc')->paginate(15);
 
         // Get unique companies for filter dropdown
         $companies = User::whereNotNull('company')->distinct()->pluck('company');
