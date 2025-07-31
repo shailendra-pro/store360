@@ -66,7 +66,7 @@
                                         <i class="bi bi-plus-circle me-2"></i>Add Business
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="#active-businesses">
                                         <i class="bi bi-check-circle me-2"></i>Active Businesses
                                     </a>
@@ -75,7 +75,7 @@
                                     <a class="nav-link" href="#expired-businesses">
                                         <i class="bi bi-clock me-2"></i>Expired Businesses
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </li>
@@ -99,7 +99,7 @@
                                         <i class="bi bi-plus-circle me-2"></i>Add User
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="#secure-links">
                                         <i class="bi bi-link-45deg me-2"></i>Secure Links
                                     </a>
@@ -108,7 +108,7 @@
                                     <a class="nav-link" href="#user-stats">
                                         <i class="bi bi-graph-up me-2"></i>User Statistics
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </li>
@@ -132,17 +132,17 @@
                                         <i class="bi bi-plus-circle me-2"></i>Add Subcategory
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="#manage-hierarchy">
                                         <i class="bi bi-diagram-2 me-2"></i>Manage Hierarchy
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
                     </li>
 
                     <!-- Products -->
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#productsMenu">
                             <i class="bi bi-box me-2"></i>
                             Products
@@ -197,7 +197,7 @@
                             <i class="bi bi-graph-up me-2"></i>
                             Analytics
                         </a>
-                    </li>
+                    </li> --}}
 
                     <!-- Settings -->
                     <li class="nav-item">

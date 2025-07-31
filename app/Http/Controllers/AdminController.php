@@ -55,7 +55,83 @@ class AdminController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        return view('admin.dashboard', compact('user'));
+
+        // Get dynamic statistics
+        $stats = [
+            'total_users' => User::where('role', 'user')->count(),
+            'total_businesses' => User::where('role', 'business')->count(),
+            'active_users' => User::where('role', 'user')->where('is_active', true)->count(),
+            'active_businesses' => User::where('role', 'business')->where('is_active', true)->count(),
+            'users_with_secure_links' => User::where('role', 'user')->whereNotNull('secure_link')->count(),
+            'valid_secure_links' => User::where('role', 'user')
+                                        ->whereNotNull('secure_link')
+                                        ->where('secure_link_expires_at', '>', now())
+                                        ->count(),
+            'expired_secure_links' => User::where('role', 'user')
+                                         ->whereNotNull('secure_link')
+                                         ->where('secure_link_expires_at', '<', now())
+                                         ->count(),
+            'total_categories' => \App\Models\Category::count(),
+            'active_categories' => \App\Models\Category::count(),
+            'total_subcategories' => \App\Models\Subcategory::count(),
+            'active_subcategories' => \App\Models\Subcategory::where('is_active', true)->count(),
+        ];
+
+        // Get recent users (last 5)
+        $recentUsers = User::where('role', 'user')
+                          ->orderBy('created_at', 'desc')
+                          ->limit(5)
+                          ->get(['id', 'name', 'email', 'company', 'is_active', 'created_at']);
+
+        // Get recent businesses (last 5)
+        $recentBusinesses = User::where('role', 'business')
+                               ->orderBy('created_at', 'desc')
+                               ->limit(5)
+                               ->get(['id', 'business_name', 'contact_email', 'username', 'is_active', 'created_at']);
+
+        // Get users with expiring secure links (next 24 hours)
+        $expiringLinks = User::where('role', 'user')
+                            ->whereNotNull('secure_link')
+                            ->where('secure_link_expires_at', '>', now())
+                            ->where('secure_link_expires_at', '<', now()->addDay())
+                            ->get(['id', 'name', 'email', 'secure_link_expires_at']);
+
+        // Get companies with most users
+        $topCompanies = User::where('role', 'user')
+                           ->whereNotNull('company')
+                           ->selectRaw('company, count(*) as user_count')
+                           ->groupBy('company')
+                           ->orderBy('user_count', 'desc')
+                           ->limit(5)
+                           ->get();
+
+        // Get monthly user growth (last 6 months)
+        $monthlyGrowth = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $startOfMonth = $date->copy()->startOfMonth();
+            $endOfMonth = $date->copy()->endOfMonth();
+
+            $monthlyGrowth[] = [
+                'month' => $date->format('M Y'),
+                'users' => User::where('role', 'user')
+                              ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                              ->count(),
+                'businesses' => User::where('role', 'business')
+                                   ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                                   ->count(),
+            ];
+        }
+
+        return view('admin.dashboard', compact(
+            'user',
+            'stats',
+            'recentUsers',
+            'recentBusinesses',
+            'expiringLinks',
+            'topCompanies',
+            'monthlyGrowth'
+        ));
     }
 
     /**
