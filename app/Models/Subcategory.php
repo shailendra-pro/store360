@@ -33,6 +33,14 @@ class Subcategory extends Model
     }
 
     /**
+     * Get the products for the subcategory.
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    /**
      * Boot function to set slug on creation
      */
     protected static function boot()

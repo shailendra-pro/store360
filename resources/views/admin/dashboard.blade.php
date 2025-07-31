@@ -10,6 +10,9 @@
                 <p class="text-muted">Welcome back, {{ $user->name }}</p>
             </div>
             <div class="d-flex gap-2">
+                <a href="{{ route('admin.products.create') }}" class="btn btn-info">
+                    <i class="bi bi-plus me-2"></i>Add Product
+                </a>
                 <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
                     <i class="bi bi-plus me-2"></i>Add User
                 </a>
@@ -69,14 +72,14 @@
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
                                 <div class="bg-info bg-opacity-10 rounded-3 p-3">
-                                    <i class="bi bi-link-45deg text-info fs-4"></i>
+                                    <i class="bi bi-box text-info fs-4"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h6 class="text-muted mb-1">Secure Links</h6>
-                                <h4 class="mb-0">{{ number_format($stats['valid_secure_links']) }}</h4>
+                                <h6 class="text-muted mb-1">Products</h6>
+                                <h4 class="mb-0">{{ number_format($stats['total_products']) }}</h4>
                                 <small class="text-info">
-                                    <i class="bi bi-check-circle"></i> {{ $stats['expired_secure_links'] }} expired
+                                    <i class="bi bi-check-circle"></i> {{ $stats['active_products'] }} active
                                 </small>
                             </div>
                         </div>
@@ -106,6 +109,93 @@
             </div>
         </div>
 
+        <!-- Additional Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-purple bg-opacity-10 rounded-3 p-3">
+                                    <i class="bi bi-globe text-purple fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Global Products</h6>
+                                <h4 class="mb-0">{{ number_format($stats['global_products']) }}</h4>
+                                <small class="text-purple">
+                                    <i class="bi bi-share"></i> Shared across companies
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                                    <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Low Stock</h6>
+                                <h4 class="mb-0">{{ number_format($stats['low_stock_products']) }}</h4>
+                                <small class="text-warning">
+                                    <i class="bi bi-arrow-down"></i> ≤ 10 units
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                                    <i class="bi bi-x-circle text-danger fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Out of Stock</h6>
+                                <h4 class="mb-0">{{ number_format($stats['out_of_stock_products']) }}</h4>
+                                <small class="text-danger">
+                                    <i class="bi bi-exclamation-circle"></i> 0 units
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-info bg-opacity-10 rounded-3 p-3">
+                                    <i class="bi bi-link-45deg text-info fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="text-muted mb-1">Secure Links</h6>
+                                <h4 class="mb-0">{{ number_format($stats['valid_secure_links']) }}</h4>
+                                <small class="text-info">
+                                    <i class="bi bi-check-circle"></i> {{ $stats['expired_secure_links'] }} expired
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Charts and Tables -->
         <div class="row">
             <div class="col-xl-8 mb-4">
@@ -115,6 +205,7 @@
                         <div class="btn-group btn-group-sm" role="group">
                             <button type="button" class="btn btn-outline-primary active" onclick="showChart('users')">Users</button>
                             <button type="button" class="btn btn-outline-primary" onclick="showChart('businesses')">Businesses</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="showChart('products')">Products</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -269,6 +360,94 @@
             </div>
         </div>
 
+        <!-- Recent Products -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Products</h5>
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        @if($recentProducts->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Category</th>
+                                            <th>Company</th>
+                                            <th>Price</th>
+                                            <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentProducts as $product)
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ $product->main_image_url }}"
+                                                             alt="{{ $product->title }}"
+                                                             class="rounded me-2"
+                                                             style="width: 40px; height: 40px; object-fit: cover;">
+                                                        <div>
+                                                            <div class="fw-medium">{{ $product->title }}</div>
+                                                            @if($product->sku)
+                                                                <small class="text-muted">SKU: {{ $product->sku }}</small>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>{{ $product->category_name }}</div>
+                                                    <small class="text-muted">{{ $product->subcategory_name }}</small>
+                                                </td>
+                                                <td>
+                                                    @if($product->is_global)
+                                                        <span class="badge bg-info">Global</span>
+                                                    @else
+                                                        {{ $product->company_name }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold">{{ $product->formatted_price }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ $product->stock_status_color }}">
+                                                        {{ $product->stock_status }}
+                                                    </span>
+                                                    <br>
+                                                    <small class="text-muted">{{ $product->stock_quantity }} units</small>
+                                                </td>
+                                                <td>
+                                                    @if($product->is_active)
+                                                        <span class="badge bg-success">Active</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Inactive</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $product->created_at->format('M d, Y') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-box display-6 mb-3"></i>
+                                <p>No products found</p>
+                                <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle me-2"></i>Add First Product
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Top Companies -->
         <div class="row">
             <div class="col-xl-6 mb-4">
@@ -309,6 +488,85 @@
             <div class="col-xl-6 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Top Subcategories by Products</h5>
+                    </div>
+                    <div class="card-body">
+                        @if($topSubcategories->count() > 0)
+                            <div class="list-group list-group-flush">
+                                @foreach($topSubcategories as $subcategory)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <h6 class="mb-1">{{ $subcategory->name }}</h6>
+                                            <small class="text-muted">{{ $subcategory->category->name }}</small>
+                                        </div>
+                                        <div class="progress flex-grow-1 mx-3" style="height: 8px;">
+                                            @php
+                                                $maxProducts = $topSubcategories->max('products_count');
+                                                $percentage = $maxProducts > 0 ? ($subcategory->products_count / $maxProducts) * 100 : 0;
+                                            @endphp
+                                            <div class="progress-bar bg-warning" style="width: {{ $percentage }}%"></div>
+                                        </div>
+                                        <span class="badge bg-warning rounded-pill">{{ $subcategory->products_count }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-tags display-6 mb-3"></i>
+                                <p>No subcategory data available</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products by Company Distribution -->
+        <div class="row">
+            <div class="col-xl-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Products by Company</h5>
+                    </div>
+                    <div class="card-body">
+                        @if($productsByCompany->count() > 0)
+                            <div class="list-group list-group-flush">
+                                @foreach($productsByCompany as $item)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                @if($item->company)
+                                                    {{ $item->company->business_name }}
+                                                @else
+                                                    <span class="text-muted">Global Products</span>
+                                                @endif
+                                            </h6>
+                                            <small class="text-muted">{{ $item->product_count }} products</small>
+                                        </div>
+                                        <div class="progress flex-grow-1 mx-3" style="height: 8px;">
+                                            @php
+                                                $maxProducts = $productsByCompany->max('product_count');
+                                                $percentage = $maxProducts > 0 ? ($item->product_count / $maxProducts) * 100 : 0;
+                                            @endphp
+                                            <div class="progress-bar bg-info" style="width: {{ $percentage }}%"></div>
+                                        </div>
+                                        <span class="badge bg-info rounded-pill">{{ $item->product_count }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-box display-6 mb-3"></i>
+                                <p>No product distribution data available</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
                         <h5 class="card-title mb-0">Quick Actions</h5>
                     </div>
                     <div class="card-body">
@@ -326,15 +584,15 @@
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="{{ route('admin.subcategories.create') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
-                                    <i class="bi bi-tags display-6 mb-2"></i>
-                                    <span>Add Subcategory</span>
+                                <a href="{{ route('admin.products.create') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                    <i class="bi bi-box display-6 mb-2"></i>
+                                    <span>Add Product</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="{{ route('admin.users.secure-link-stats') }}" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
-                                    <i class="bi bi-link-45deg display-6 mb-2"></i>
-                                    <span>Secure Links</span>
+                                <a href="{{ route('admin.subcategories.create') }}" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3">
+                                    <i class="bi bi-tags display-6 mb-2"></i>
+                                    <span>Add Subcategory</span>
                                 </a>
                             </div>
                         </div>
@@ -368,6 +626,16 @@ const chartData = {
             data: @json(collect($monthlyGrowth)->pluck('businesses')),
             borderColor: 'rgb(34, 197, 94)',
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.4
+        }]
+    },
+    products: {
+        labels: @json(collect($monthlyGrowth)->pluck('month')),
+        datasets: [{
+            label: 'Products',
+            data: @json(collect($monthlyGrowth)->pluck('products')),
+            borderColor: 'rgb(107, 114, 128)',
+            backgroundColor: 'rgba(107, 114, 128, 0.1)',
             tension: 0.4
         }]
     }

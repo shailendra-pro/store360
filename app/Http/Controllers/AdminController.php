@@ -75,6 +75,11 @@ class AdminController extends Controller
             'active_categories' => \App\Models\Category::where('is_active', true)->count(),
             'total_subcategories' => \App\Models\Subcategory::count(),
             'active_subcategories' => \App\Models\Subcategory::where('is_active', true)->count(),
+            'total_products' => \App\Models\Product::count(),
+            'active_products' => \App\Models\Product::where('is_active', true)->count(),
+            'global_products' => \App\Models\Product::where('is_global', true)->count(),
+            'low_stock_products' => \App\Models\Product::where('stock_quantity', '<=', 10)->where('stock_quantity', '>', 0)->count(),
+            'out_of_stock_products' => \App\Models\Product::where('stock_quantity', 0)->count(),
         ];
 
         // Get recent users (last 5)
@@ -88,6 +93,12 @@ class AdminController extends Controller
                                ->orderBy('created_at', 'desc')
                                ->limit(5)
                                ->get(['id', 'business_name', 'contact_email', 'username', 'is_active', 'created_at']);
+
+        // Get recent products (last 5)
+        $recentProducts = \App\Models\Product::with(['subcategory.category', 'company', 'primaryImage'])
+                                            ->orderBy('created_at', 'desc')
+                                            ->limit(5)
+                                            ->get();
 
         // Get users with expiring secure links (next 24 hours)
         $expiringLinks = User::where('role', 'user')
@@ -105,6 +116,21 @@ class AdminController extends Controller
                            ->limit(5)
                            ->get();
 
+        // Get top subcategories by product count
+        $topSubcategories = \App\Models\Subcategory::with('category')
+                                                   ->withCount('products')
+                                                   ->orderBy('products_count', 'desc')
+                                                   ->limit(5)
+                                                   ->get();
+
+        // Get products by company distribution
+        $productsByCompany = \App\Models\Product::with('company')
+                                                ->selectRaw('company_id, count(*) as product_count')
+                                                ->groupBy('company_id')
+                                                ->orderBy('product_count', 'desc')
+                                                ->limit(5)
+                                                ->get();
+
         // Get monthly user growth (last 6 months)
         $monthlyGrowth = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -120,6 +146,8 @@ class AdminController extends Controller
                 'businesses' => User::where('role', 'business')
                                    ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                                    ->count(),
+                'products' => \App\Models\Product::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+                                                ->count(),
             ];
         }
 
@@ -128,8 +156,11 @@ class AdminController extends Controller
             'stats',
             'recentUsers',
             'recentBusinesses',
+            'recentProducts',
             'expiringLinks',
             'topCompanies',
+            'topSubcategories',
+            'productsByCompany',
             'monthlyGrowth'
         ));
     }
