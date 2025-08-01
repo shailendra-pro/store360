@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\BusinessAuthController;
 use App\Http\Controllers\Api\V1\BusinessController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Api\V1\WebGLController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,14 @@ Route::prefix('v1')->group(function () {
     // Public product routes for Unity WebGL
     Route::get('products', [ProductController::class, 'apiIndex']);
     Route::get('products/{product}', [ProductController::class, 'apiShow']);
+
+    // WebGL Application Routes
+    Route::post('webgl/validate-link', [WebGLController::class, 'validateSecureLink']);
+    Route::post('webgl/login', [WebGLController::class, 'login']);
+    Route::post('webgl/validate-session', [WebGLController::class, 'validateSession']);
+    Route::post('webgl/logout', [WebGLController::class, 'logout']);
+    Route::get('webgl/products', [WebGLController::class, 'getProducts']);
+    Route::get('webgl/categories', [WebGLController::class, 'getCategories']);
 });
 
 /*
@@ -78,6 +87,14 @@ Route::get('/', function () {
                 'users' => 'GET /api/v1/business/users',
                 'user_details' => 'GET /api/v1/business/users/{userId}',
                 'update_logo' => 'POST /api/v1/business/update-logo',
+            ],
+            'webgl_application' => [
+                'validate_link' => 'POST /api/v1/webgl/validate-link',
+                'login' => 'POST /api/v1/webgl/login',
+                'validate_session' => 'POST /api/v1/webgl/validate-session',
+                'logout' => 'POST /api/v1/webgl/logout',
+                'products' => 'GET /api/v1/webgl/products',
+                'categories' => 'GET /api/v1/webgl/categories',
             ]
         ]
     ]);

@@ -99,6 +99,17 @@ return [
 
     'key' => env('APP_KEY'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | WebGL Application Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for WebGL application URLs and settings.
+    |
+    */
+
+    'webgl_login_url' => env('WEBGL_LOGIN_URL', 'https://store360.24livehost.com/build/'),
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

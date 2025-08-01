@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class BusinessAuthController extends Controller
 {
     /**
-     * Business login
+     * Business and End User login
      */
     public function login(Request $request)
     {
@@ -21,12 +21,13 @@ class BusinessAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Find business user by username
-        $business = User::where('username', $request->username)
-                       ->where('role', 'business')
-                       ->first();
+        // Find user by username or email (both business and end user)
+        $user = User::where('username', $request->username)
+                   ->orWhere('email', $request->username)
+                   ->orWhere('contact_email', $request->username)
+                   ->first();
 
-        if (!$business) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
@@ -36,8 +37,8 @@ class BusinessAuthController extends Controller
             ], 401);
         }
 
-        // Check if business account is active
-        if (!$business->isBusinessActive()) {
+        // Check if user is active
+        if (!$user->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'Account not active',
@@ -47,10 +48,87 @@ class BusinessAuthController extends Controller
             ], 403);
         }
 
-        // Attempt authentication
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $user = Auth::user();
-            $token = $user->createToken('business-api-token')->plainTextToken;
+        // Handle different user types
+        if ($user->role === 'business') {
+            // Business user login
+            if (!$user->isBusinessActive()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account not active',
+                    'errors' => [
+                        'username' => ['Your account is not active. Please contact administrator.']
+                    ]
+                ], 403);
+            }
+
+            // Attempt authentication for business (try username, email, or contact_email)
+            $credentials = [
+                'password' => $request->password
+            ];
+
+            // Try different login fields
+            if (Auth::attempt(['username' => $request->username, 'password' => $request->password]) ||
+                Auth::attempt(['email' => $request->username, 'password' => $request->password]) ||
+                Auth::attempt(['contact_email' => $request->username, 'password' => $request->password])) {
+                $authenticatedUser = Auth::user();
+                $token = $authenticatedUser->createToken('business-api-token')->plainTextToken;
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'data' => [
+                        'user' => [
+                            'id' => $authenticatedUser->id,
+                            'business_name' => $authenticatedUser->business_name,
+                            'contact_email' => $authenticatedUser->contact_email,
+                            'username' => $authenticatedUser->username,
+                            'logo_url' => $authenticatedUser->logo_url,
+                            'is_active' => $authenticatedUser->is_active,
+                            'expires_at' => $authenticatedUser->expires_at,
+                            'business_description' => $authenticatedUser->business_description,
+                            'phone' => $authenticatedUser->phone,
+                            'address' => $authenticatedUser->address,
+                            'city' => $authenticatedUser->city,
+                            'state' => $authenticatedUser->state,
+                            'postal_code' => $authenticatedUser->postal_code,
+                            'country' => $authenticatedUser->country,
+                        ],
+                        'token' => $token,
+                        'token_type' => 'Bearer',
+                        'expires_in' => config('sanctum.expiration') * 60,
+                    ]
+                ], 200);
+            }
+
+        } elseif ($user->role === 'user') {
+            // End user login - use proper password validation
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials',
+                    'errors' => [
+                        'username' => ['Invalid username or password.']
+                    ]
+                ], 401);
+            }
+
+            // Get business details for end user
+            $business = User::where('role', 'business')
+                          ->where('business_name', $user->company)
+                          ->first();
+
+            if (!$business) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company not found',
+                    'errors' => [
+                        'username' => ['Company not found. Please contact administrator.']
+                    ]
+                ], 404);
+            }
+
+            // Create token for end user
+            $token = $user->createToken('enduser-api-token')->plainTextToken;
 
             return response()->json([
                 'success' => true,
@@ -58,23 +136,35 @@ class BusinessAuthController extends Controller
                 'data' => [
                     'user' => [
                         'id' => $user->id,
-                        'business_name' => $user->business_name,
-                        'contact_email' => $user->contact_email,
+                        'name' => $user->name,
+                        'email' => $user->email,
                         'username' => $user->username,
-                        'logo_url' => $user->logo_url,
+                        'company' => $user->company,
                         'is_active' => $user->is_active,
                         'expires_at' => $user->expires_at,
-                        'business_description' => $user->business_description,
-                        'phone' => $user->phone,
-                        'address' => $user->address,
-                        'city' => $user->city,
-                        'state' => $user->state,
-                        'postal_code' => $user->postal_code,
-                        'country' => $user->country,
+                    ],
+                    'business' => [
+                        'id' => $business->id,
+                        'business_name' => $business->business_name,
+                        'contact_email' => $business->contact_email,
+                        'logo_url' => $business->logo_url,
+                        'business_description' => $business->business_description,
+                        'phone' => $business->phone,
+                        'address' => $business->address,
+                        'city' => $business->city,
+                        'state' => $business->state,
+                        'postal_code' => $business->postal_code,
+                        'country' => $business->country,
+                    ],
+                    'store_config' => [
+                        'store_name' => $business->business_name,
+                        'logo_url' => $business->logo_url,
+                        'theme_color' => '#0d6efd',
+                        'splash_duration' => 3000,
                     ],
                     'token' => $token,
                     'token_type' => 'Bearer',
-                    'expires_in' => config('sanctum.expiration') * 60, // Convert to seconds
+                    'expires_in' => config('sanctum.expiration') * 60,
                 ]
             ], 200);
         }

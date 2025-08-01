@@ -168,7 +168,7 @@ class User extends Authenticatable
             return '';
         }
 
-        return url("/secure/{$this->secure_link}");
+        return url("/webgl/access?link={$this->secure_link}");
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\BusinessAuthController;
 use App\Http\Controllers\BusinessController as CompanyController;
+use App\Http\Controllers\WebGLController;
 
 // Admin Authentication Routes
 Route::prefix('admin')->group(function () {
@@ -82,7 +83,11 @@ Route::prefix('business')->group(function () {
     });
 });
 
-// Secure Link Route
+// WebGL Access Routes
+Route::get('/webgl/access', [WebGLController::class, 'validateAccess'])->name('webgl.access');
+Route::get('/webgl/expired', [WebGLController::class, 'expired'])->name('webgl.expired');
+
+// Legacy Secure Link Route (for backward compatibility)
 Route::get('/secure/{secure_link}', function ($secure_link) {
     $user = \App\Models\User::where('secure_link', $secure_link)->first();
 
