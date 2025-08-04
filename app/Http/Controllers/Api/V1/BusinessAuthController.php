@@ -77,6 +77,7 @@ class BusinessAuthController extends Controller
                     'success' => true,
                     'message' => 'Login successful',
                     'data' => [
+                        'role' => $authenticatedUser->role,
                         'user' => [
                             'id' => $authenticatedUser->id,
                             'business_name' => $authenticatedUser->business_name,
@@ -93,6 +94,12 @@ class BusinessAuthController extends Controller
                             'postal_code' => $authenticatedUser->postal_code,
                             'country' => $authenticatedUser->country,
                         ],
+                        'store_config' => [
+                            'store_name' => $authenticatedUser->business_name,
+                            'logo_url' => $authenticatedUser->logo_url,
+                            'theme_color' => '#0d6efd',
+                            'splash_duration' => 3000,
+                        ],
                         'token' => $token,
                         'token_type' => 'Bearer',
                         'expires_in' => config('sanctum.expiration') * 60,
@@ -101,6 +108,17 @@ class BusinessAuthController extends Controller
             }
 
         } elseif ($user->role === 'user') {
+            //dd($user->secure_link_expires_at);
+            if ($user->secure_link_expires_at && now()->greaterThan($user->secure_link_expires_at) || $user->secure_link_expires_at === null ) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account expired',
+                    'errors' => [
+                        'username' => ['Your account has expired. Please contact administrator.']
+                    ]
+                ], 403);
+            }
             // End user login - use proper password validation
             if (!Hash::check($request->password, $user->password)) {
                 return response()->json([
@@ -134,6 +152,7 @@ class BusinessAuthController extends Controller
                 'success' => true,
                 'message' => 'Login successful',
                 'data' => [
+                    'role' => $user->role,
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
@@ -196,38 +215,81 @@ class BusinessAuthController extends Controller
      */
     public function profile(Request $request)
     {
+       // dd(Auth::user());
         $user = $request->user();
 
-        if (!$user->isBusiness()) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied. Business account required.'
-            ], 403);
+                'message' => 'Not authenticated.'
+            ], 401);
+        }
+
+        if ($user->role === 'business') {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'business_name' => $user->business_name,
+                        'contact_email' => $user->contact_email,
+                        'username' => $user->username,
+                        'logo_url' => $user->logo_url,
+                        'is_active' => $user->is_active,
+                        'expires_at' => $user->expires_at,
+                        'business_description' => $user->business_description,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'city' => $user->city,
+                        'state' => $user->state,
+                        'postal_code' => $user->postal_code,
+                        'country' => $user->country,
+                        'created_at' => $user->created_at,
+                        'updated_at' => $user->updated_at,
+                    ]
+                ]
+            ], 200);
+        } elseif ($user->role === 'user') {
+            // Get business details for end user
+            $business = \App\Models\User::where('role', 'business')
+                ->where('business_name', $user->company)
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'username' => $user->username,
+                        'company' => $user->company,
+                        'is_active' => $user->is_active,
+                        'expires_at' => $user->expires_at,
+                        'created_at' => $user->created_at,
+                        'updated_at' => $user->updated_at,
+                    ],
+                    'business' => $business ? [
+                        'id' => $business->id,
+                        'business_name' => $business->business_name,
+                        'contact_email' => $business->contact_email,
+                        'logo_url' => $business->logo_url,
+                        'business_description' => $business->business_description,
+                        'phone' => $business->phone,
+                        'address' => $business->address,
+                        'city' => $business->city,
+                        'state' => $business->state,
+                        'postal_code' => $business->postal_code,
+                        'country' => $business->country,
+                    ] : null,
+                ]
+            ], 200);
         }
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'business_name' => $user->business_name,
-                    'contact_email' => $user->contact_email,
-                    'username' => $user->username,
-                    'logo_url' => $user->logo_url,
-                    'is_active' => $user->is_active,
-                    'expires_at' => $user->expires_at,
-                    'business_description' => $user->business_description,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'city' => $user->city,
-                    'state' => $user->state,
-                    'postal_code' => $user->postal_code,
-                    'country' => $user->country,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ]
-            ]
-        ], 200);
+            'success' => false,
+            'message' => 'Invalid account type.'
+        ], 403);
     }
 
     /**
@@ -237,60 +299,89 @@ class BusinessAuthController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->isBusiness()) {
+        if ($user->role === 'business') {
+            $request->validate([
+                'business_name' => 'sometimes|string|max:255',
+                'contact_email' => 'sometimes|email|max:255',
+                'business_description' => 'sometimes|string|max:1000',
+                'phone' => 'sometimes|string|max:20',
+                'address' => 'sometimes|string|max:255',
+                'city' => 'sometimes|string|max:100',
+                'state' => 'sometimes|string|max:100',
+                'postal_code' => 'sometimes|string|max:20',
+                'country' => 'sometimes|string|max:100',
+            ]);
+
+            $user->update($request->only([
+                'business_name',
+                'contact_email',
+                'business_description',
+                'phone',
+                'address',
+                'city',
+                'state',
+                'postal_code',
+                'country',
+            ]));
+
             return response()->json([
-                'success' => false,
-                'message' => 'Access denied. Business account required.'
-            ], 403);
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'business_name' => $user->business_name,
+                        'contact_email' => $user->contact_email,
+                        'username' => $user->username,
+                        'logo_url' => $user->logo_url,
+                        'is_active' => $user->is_active,
+                        'expires_at' => $user->expires_at,
+                        'business_description' => $user->business_description,
+                        'phone' => $user->phone,
+                        'address' => $user->address,
+                        'city' => $user->city,
+                        'state' => $user->state,
+                        'postal_code' => $user->postal_code,
+                        'country' => $user->country,
+                        'updated_at' => $user->updated_at,
+                    ]
+                ]
+            ], 200);
+        } elseif ($user->role === 'user') {
+            $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|max:255',
+                'company' => 'sometimes|string|max:255',
+            ]);
+
+            $user->update($request->only([
+                'name',
+                'email',
+                'company',
+            ]));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'username' => $user->username,
+                        'company' => $user->company,
+                        'is_active' => $user->is_active,
+                        'expires_at' => $user->expires_at,
+                        'updated_at' => $user->updated_at,
+                    ]
+                ]
+            ], 200);
         }
 
-        $request->validate([
-            'business_name' => 'sometimes|string|max:255',
-            'contact_email' => 'sometimes|email|max:255',
-            'business_description' => 'sometimes|string|max:1000',
-            'phone' => 'sometimes|string|max:20',
-            'address' => 'sometimes|string|max:255',
-            'city' => 'sometimes|string|max:100',
-            'state' => 'sometimes|string|max:100',
-            'postal_code' => 'sometimes|string|max:20',
-            'country' => 'sometimes|string|max:100',
-        ]);
-
-        $user->update($request->only([
-            'business_name',
-            'contact_email',
-            'business_description',
-            'phone',
-            'address',
-            'city',
-            'state',
-            'postal_code',
-            'country',
-        ]));
-
         return response()->json([
-            'success' => true,
-            'message' => 'Profile updated successfully',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'business_name' => $user->business_name,
-                    'contact_email' => $user->contact_email,
-                    'username' => $user->username,
-                    'logo_url' => $user->logo_url,
-                    'is_active' => $user->is_active,
-                    'expires_at' => $user->expires_at,
-                    'business_description' => $user->business_description,
-                    'phone' => $user->phone,
-                    'address' => $user->address,
-                    'city' => $user->city,
-                    'state' => $user->state,
-                    'postal_code' => $user->postal_code,
-                    'country' => $user->country,
-                    'updated_at' => $user->updated_at,
-                ]
-            ]
-        ], 200);
+            'success' => false,
+            'message' => 'Invalid account type.'
+        ], 403);
     }
 
     /**

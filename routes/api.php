@@ -29,7 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::post('business/register', [BusinessAuthController::class, 'register']);
 
     // Protected business routes
-    Route::middleware(['auth:sanctum', 'api.business'])->prefix('business')->group(function () {
+    Route::middleware(['auth:sanctum'])->prefix('business')->group(function () {
         Route::post('logout', [BusinessAuthController::class, 'logout']);
         Route::get('profile', [BusinessAuthController::class, 'profile']);
         Route::put('profile', [BusinessAuthController::class, 'updateProfile']);
