@@ -79,7 +79,7 @@
                                     @enderror
                                 </div>
 
-                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                {{-- <div class="d-flex justify-content-between align-items-center mb-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="remember" name="remember">
                                         <label class="form-check-label text-muted" for="remember">
@@ -87,16 +87,16 @@
                                         </label>
                                     </div>
                                     <a href="#" class="text-decoration-none">Forgot password?</a>
-                                </div>
+                                </div> --}}
 
                                 <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
                                     Sign In
                                 </button>
 
-                                <div class="text-center">
+                                {{-- <div class="text-center">
                                     <span class="text-muted">Don't have an account? </span>
                                     <a href="#" class="text-decoration-none">Contact administrator</a>
-                                </div>
+                                </div> --}}
                             </form>
                         </div>
                     </div>
