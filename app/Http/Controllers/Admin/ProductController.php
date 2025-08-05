@@ -52,18 +52,19 @@ class ProductController extends Controller
     {
         $subcategories = Subcategory::with('category')->orderBy('name')->get();
         $companies = User::where('role', 'business')->orderBy('business_name')->get();
-        
+
         return view('admin.products.create', compact('subcategories', 'companies'));
     }
 
     public function store(Request $request)
     {
+       // dd($request->all()); // Debugging line to check request data
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'subcategory_id' => 'required|exists:subcategories,id',
             'company_id' => 'nullable|exists:users,id',
-            'is_global' => 'boolean',
+            'is_global' => 'nullable',
             'price' => 'nullable|numeric|min:0',
             'sku' => 'nullable|string|max:100|unique:products,sku',
             'stock_quantity' => 'nullable|integer|min:0',
@@ -76,9 +77,9 @@ class ProductController extends Controller
             'description' => $request->description,
             'slug' => Str::slug($request->title),
             'subcategory_id' => $request->subcategory_id,
-            'company_id' => $request->is_global ? null : $request->company_id,
+            'company_id' => ($request->input('is_global') ? null : $request->company_id),
             'is_active' => $request->has('is_active'),
-            'is_global' => $request->has('is_global'),
+            'is_global' => filter_var($request->input('is_global'), FILTER_VALIDATE_BOOLEAN),
             'price' => $request->price,
             'sku' => $request->sku,
             'stock_quantity' => $request->stock_quantity ?? 0,
@@ -105,7 +106,7 @@ class ProductController extends Controller
         $product->load(['subcategory.category', 'company', 'images']);
         $subcategories = Subcategory::with('category')->orderBy('name')->get();
         $companies = User::where('role', 'business')->orderBy('business_name')->get();
-        
+
         return view('admin.products.edit', compact('product', 'subcategories', 'companies'));
     }
 
@@ -250,7 +251,7 @@ class ProductController extends Controller
     public function apiShow(Product $product)
     {
         $product->load(['subcategory.category', 'images']);
-        
+
         return response()->json([
             'success' => true,
             'data' => $product

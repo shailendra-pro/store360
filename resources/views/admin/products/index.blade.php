@@ -33,7 +33,7 @@
                     <form method="GET" action="{{ route('admin.products.index') }}" class="row g-3">
                         <div class="col-md-3">
                             <label for="search" class="form-label">Search Products</label>
-                            <input type="text" class="form-control" id="search" name="search" 
+                            <input type="text" class="form-control" id="search" name="search"
                                    value="{{ request('search') }}" placeholder="Search by title...">
                         </div>
                         <div class="col-md-3">
@@ -41,7 +41,7 @@
                             <select class="form-select" id="subcategory_id" name="subcategory_id">
                                 <option value="">All Subcategories</option>
                                 @foreach($subcategories as $subcategory)
-                                    <option value="{{ $subcategory->id }}" 
+                                    <option value="{{ $subcategory->id }}"
                                             {{ request('subcategory_id') == $subcategory->id ? 'selected' : '' }}>
                                         {{ $subcategory->category->name }} > {{ $subcategory->name }}
                                     </option>
@@ -56,7 +56,7 @@
                                     Global Products
                                 </option>
                                 @foreach($companies as $company)
-                                    <option value="{{ $company->id }}" 
+                                    <option value="{{ $company->id }}"
                                             {{ request('company_id') == $company->id ? 'selected' : '' }}>
                                         {{ $company->business_name }}
                                     </option>
@@ -184,9 +184,9 @@
                                 @forelse($products as $product)
                                     <tr>
                                         <td>
-                                            <img src="{{ $product->main_image_url }}" 
-                                                 alt="{{ $product->title }}" 
-                                                 class="rounded" 
+                                            <img src="{{ $product->main_image_url }}"
+                                                 alt="{{ $product->title }}"
+                                                 class="rounded"
                                                  style="width: 50px; height: 50px; object-fit: cover;">
                                         </td>
                                         <td>
@@ -229,35 +229,35 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.products.show', $product) }}" 
-                                                   class="btn btn-sm btn-outline-primary" 
+                                                {{-- <a href="{{ route('admin.products.show', $product) }}"
+                                                   class="btn btn-sm btn-outline-primary"
                                                    title="View">
                                                     <i class="bi bi-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.products.edit', $product) }}" 
-                                                   class="btn btn-sm btn-outline-secondary" 
+                                                </a> --}}
+                                                <a href="{{ route('admin.products.edit', $product) }}"
+                                                   class="btn btn-sm btn-outline-secondary"
                                                    title="Edit">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <form action="{{ route('admin.products.toggle-status', $product) }}" 
-                                                      method="POST" 
+                                                <form action="{{ route('admin.products.toggle-status', $product) }}"
+                                                      method="POST"
                                                       class="d-inline">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-outline-{{ $product->is_active ? 'warning' : 'success' }}" 
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-{{ $product->is_active ? 'warning' : 'success' }}"
                                                             title="{{ $product->is_active ? 'Deactivate' : 'Activate' }}"
                                                             onclick="return confirm('Are you sure you want to {{ $product->is_active ? 'deactivate' : 'activate' }} this product?')">
                                                         <i class="bi bi-{{ $product->is_active ? 'pause' : 'play' }}"></i>
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('admin.products.destroy', $product) }}" 
-                                                      method="POST" 
+                                                <form action="{{ route('admin.products.destroy', $product) }}"
+                                                      method="POST"
                                                       class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-outline-danger" 
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger"
                                                             title="Delete"
                                                             onclick="return confirm('Are you sure you want to delete this product? This action cannot be undone.')">
                                                         <i class="bi bi-trash"></i>
@@ -295,4 +295,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection
