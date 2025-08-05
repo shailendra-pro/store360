@@ -238,7 +238,7 @@
                 </div>
 
                 <!-- Account Statistics -->
-                <div class="card border-0 shadow-sm mt-3">
+                {{-- <div class="card border-0 shadow-sm mt-3">
                     <div class="card-header bg-white">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-graph-up me-2"></i>Account Statistics
@@ -266,7 +266,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Information -->
                 <div class="card border-0 shadow-sm mt-3">

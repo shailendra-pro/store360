@@ -32,6 +32,8 @@
                         <label class="form-label text-muted">Email Address</label>
                         <p class="fw-medium mb-0">{{ $user->email }}</p>
                     </div>
+                    {{-- // password and confirm password fields update code --}}
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label text-muted">Company</label>
                         <p class="fw-medium mb-0">{{ $user->company }}</p>
@@ -58,6 +60,25 @@
                         <label class="form-label text-muted">Last Updated</label>
                         <p class="fw-medium mb-0">{{ $user->updated_at->format('M d, Y \a\t g:i A') }}</p>
                     </div>
+
+                    <form method="POST" action="{{ route('business.users.update', $user->id) }}">
+                        @csrf
+                        @method('PATCH')
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                   id="password" placeholder="Leave blank to keep current password" name="password">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="password_confirmation" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control"
+                                   id="password_confirmation" name="password_confirmation">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -103,7 +124,7 @@
                             <div class="col-md-6">
                                 <label class="form-label text-muted">Secure Link URL</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ route('secure.access', $user->secure_link) }}" readonly>
+                                    <input type="text" class="form-control" value="{{ $user->secure_link_url }}" readonly>
                                     <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
@@ -258,7 +279,36 @@ function copyToClipboard(button) {
 
 function sendSecureLinkEmail() {
     // This would typically make an AJAX call to resend the email
-    alert('Email resend functionality would be implemented here.');
+   fetch("{{ route('business.users.resend-secure-link-email', $user->id) }}", {
+    method: "POST",
+    headers: {
+        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    })
+    .then(async response => {
+        const contentType = response.headers.get("Content-Type");
+
+        if (!response.ok) {
+            let errorText = "An unknown error occurred.";
+            if (contentType && contentType.includes("application/json")) {
+                const errorData = await response.json();
+                errorText = errorData.message || JSON.stringify(errorData);
+            }
+            throw new Error(errorText);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Secure link email resent successfully.");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Error: " + error.message);
+    });
+
 }
 </script>
 @endsection

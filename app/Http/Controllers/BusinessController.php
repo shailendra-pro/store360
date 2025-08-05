@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\SecureLinkMail;
+use Illuminate\support\Facades\Log;
 
 class BusinessController extends Controller
 {
@@ -72,17 +74,20 @@ class BusinessController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8'
         ]);
 
         // Generate secure link
         $secureLink = Str::random(32);
         $expiresAt = now()->addHours(48);
+        $password = $request->password;
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => 'user',
-            'password' => Hash::make('password'),
+            'password' => Hash::make($password),
             'company' => $business->business_name,
             'is_active' => true,
             'secure_link' => $secureLink,
@@ -104,8 +109,8 @@ class BusinessController extends Controller
         $business = Auth::user();
 
         $user = User::where('role', 'user')
-                   ->where('company', $business->business_name)
-                   ->findOrFail($id);
+                    ->where('company', $business->business_name)
+                    ->findOrFail($id);
 
         return view('business.users.show', compact('business', 'user'));
     }
@@ -233,4 +238,52 @@ class BusinessController extends Controller
         // TODO: Implement actual email sending
         // Mail::to($user->email)->send(new SecureLinkMail($user, $secureUrl));
     }
+    public function updateUser(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8'
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update($request->only('password'));
+
+        return back()->with('success', 'User updated successfully.');
+    }
+
+    public function resendSecureLinkEmail(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if (!$user->secure_link) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No secure link exists for this user.'
+                ], 404);
+            }
+
+            return back()->withErrors(['message' => 'No secure link exists for this user.']);
+        }
+
+        try {
+            Mail::to($user->email)->send(new SecureLinkMail($user, $user->secure_link_url, $user->email));
+        } catch (\Throwable $e) {
+            \Log::error('Mail send error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ], 500);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Secure link email resent successfully.'
+            ]);
+        }
+
+        return back()->with('success', 'Secure link email resent successfully.');
+    }
+
 }

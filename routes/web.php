@@ -72,6 +72,7 @@ Route::prefix('business')->group(function () {
         Route::get('/users/create', [CompanyController::class, 'createUser'])->name('business.users.create');
         Route::post('/users', [CompanyController::class, 'storeUser'])->name('business.users.store');
         Route::get('/users/{id}', [CompanyController::class, 'showUser'])->name('business.users.show');
+        Route::patch('/users/{id}/update', [CompanyController::class, 'updateUser'])->name('business.users.update');
         Route::patch('/users/{id}/toggle-status', [CompanyController::class, 'toggleUserStatus'])->name('business.users.toggle-status');
         Route::post('/users/{id}/generate-secure-link', [CompanyController::class, 'generateSecureLink'])->name('business.users.generate-secure-link');
         Route::post('/users/{id}/extend-secure-link', [CompanyController::class, 'extendSecureLink'])->name('business.users.extend-secure-link');
@@ -80,6 +81,7 @@ Route::prefix('business')->group(function () {
         Route::get('/logo', [CompanyController::class, 'logo'])->name('business.logo.index');
         Route::post('/logo', [CompanyController::class, 'updateLogo'])->name('business.logo.update');
         Route::delete('/logo', [CompanyController::class, 'deleteLogo'])->name('business.logo.delete');
+        Route::post('/users/resend-secure-link-email/{id}', [CompanyController::class, 'resendSecureLinkEmail'])->name('business.users.resend-secure-link-email');
     });
 });
 
@@ -102,3 +104,4 @@ Route::get('/secure/{secure_link}', function ($secure_link) {
 Route::get('/', function () {
     return redirect('/admin/login');
 });
+

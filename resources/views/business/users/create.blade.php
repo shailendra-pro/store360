@@ -45,7 +45,28 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-info">
+
+                    {{-- // for password and confirm password fields --}}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                   id="password" name="password" required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
+                                   id="password_confirmation" name="password_confirmation" required>
+                            @error('password_confirmation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                     <div class="alert alert-info">
                         <div class="d-flex">
                             <i class="bi bi-info-circle me-2 mt-1"></i>
                             <div>
