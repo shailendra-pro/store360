@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\BusinessAuthController;
 use App\Http\Controllers\Api\V1\BusinessController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\WebGLController;
 
 /*
@@ -46,9 +46,14 @@ Route::prefix('v1')->group(function () {
         Route::get('expiring-links', [BusinessController::class, 'getExpiringLinks']);
     });
 
-    // Public product routes for Unity WebGL
-    Route::get('products', [ProductController::class, 'apiIndex']);
-    Route::get('products/{product}', [ProductController::class, 'apiShow']);
+    // Protected product routes (requires authentication)
+    Route::middleware(['auth:sanctum'])->prefix('products')->group(function () {
+        Route::get('categories-with-products', [ProductController::class, 'getCategoriesWithProducts']);
+        Route::get('all', [ProductController::class, 'getProducts']);
+        Route::get('categories', [ProductController::class, 'getCategories']);
+        Route::get('subcategories/{categoryId?}', [ProductController::class, 'getSubcategories']);
+        Route::get('{productId}', [ProductController::class, 'getProduct']);
+    });
 
     // WebGL Application Routes
     Route::post('webgl/validate-link', [WebGLController::class, 'validateSecureLink']);
@@ -95,6 +100,13 @@ Route::get('/', function () {
                 'logout' => 'POST /api/v1/webgl/logout',
                 'products' => 'GET /api/v1/webgl/products',
                 'categories' => 'GET /api/v1/webgl/categories',
+            ],
+            'product_api' => [
+                'categories_with_products' => 'GET /api/v1/products/categories-with-products',
+                'all_products' => 'GET /api/v1/products/all',
+                'categories' => 'GET /api/v1/products/categories',
+                'subcategories' => 'GET /api/v1/products/subcategories/{categoryId?}',
+                'product_details' => 'GET /api/v1/products/{productId}',
             ]
         ]
     ]);
