@@ -273,6 +273,11 @@
                                     <i class="bi bi-trash me-2"></i>Delete User
                                 </button>
                             </form>
+                            @if($user->secure_link)
+                                <button type="button" class="btn btn-outline-info w-100" onclick="sendSecureLinkEmail()">
+                                    <i class="bi bi-envelope me-2"></i>Resend Email
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -323,6 +328,42 @@ function copyToClipboard(text) {
         }, 2000);
     });
 }
+
+
+function sendSecureLinkEmail() {
+    // This would typically make an AJAX call to resend the email
+   fetch("{{ route('admin.users.resend-secure-link-email', $user->id) }}", {
+    method: "POST",
+    headers: {
+        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    })
+    .then(async response => {
+        const contentType = response.headers.get("Content-Type");
+
+        if (!response.ok) {
+            let errorText = "An unknown error occurred.";
+            if (contentType && contentType.includes("application/json")) {
+                const errorData = await response.json();
+                errorText = errorData.message || JSON.stringify(errorData);
+            }
+            throw new Error(errorText);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Secure link email resent successfully.");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Error: " + error.message);
+    });
+
+}
+
 </script>
 
 @endsection

@@ -267,7 +267,8 @@ class BusinessController extends Controller
         }
 
         try {
-            Mail::to($user->email)->send(new SecureLinkMail($user, $user->secure_link_url, $user->email));
+            $response = Mail::to($user->email)->send(new SecureLinkMail($user, $user->secure_link_url, $user->email));
+            \Log::info('Mail send response:', ['response' => $response]);
         } catch (\Throwable $e) {
             \Log::error('Mail send error: ' . $e->getMessage());
             return response()->json([

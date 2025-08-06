@@ -51,6 +51,7 @@ Route::prefix('admin')->group(function () {
         Route::patch('products/images/{image}/set-primary', [ProductController::class, 'setPrimaryImage'])->name('admin.products.set-primary-image');
         Route::delete('products/images/{image}', [ProductController::class, 'deleteImage'])->name('admin.products.delete-image');
 
+        Route::post('/users/resend-secure-link-email/{id}', [CompanyController::class, 'resendSecureLinkEmail'])->name('admin.users.resend-secure-link-email');
         Route::get('/', function () {
             return redirect('/admin/dashboard');
         });
